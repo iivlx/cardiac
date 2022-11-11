@@ -1,8 +1,24 @@
-def showUsage():
-  print("Usage: assembler.py [INPUT] [OUTPUT]")
+#!/usr/bin/env python3
+
+class Assembler:
+  labels = []
+  current_line = 1
+
+  def __init__(self, lines):
+    self.processLines(lines)
+
+  def processLine(self, line):
+    for token in line.split():
+      if token.startswith(';'):
+        print(f"Comment on line {self.current_line}")
+        return
+
     
-def main():
-  if len(sys.argv) < 1: return showUsage()
+  def processLines(self, lines):
+    for line in lines:
+      self.processLine(line)
+      self.current_line += 1
 
 if __name__ == '__main__':
-  main()
+  import main
+  main.main()
