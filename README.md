@@ -15,11 +15,12 @@ It will assemble the source file into a `.deck` file.
 
 **Assembler Instructions:**
 
-| Instruction | Description                                  |
-| ----------- | -------------------------------------------- |
-| #include    | Include another file                         |
-| #define     | Define                                       |
-| .org        | Specify memory address for next instruction  |
+| Instruction | Description                                     |
+| ----------- | ----------------------------------------------- |
+| #include    | Include another file                            |
+| #define     | Define                                          |
+| .data       | Specify the remainder of the line contains data |
+| .org        | Specify memory address for next instruction     |
 
 **Labels:**
 
