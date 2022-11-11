@@ -9,6 +9,9 @@ def isData(data, datalength=3):
   
 def isLabel(data): return data.isalnum()
 
+def createIVD(dd):
+  return {v: k for k, v in dd.items()}
+
 def removeComments(line):
   tokens = []
   for token in line.split():
@@ -49,13 +52,15 @@ class Assembler:
   def generateListing(self):
     last = -1
     for line in self.preprocessLines:
+      # line is a list containing the memory address, the opcode mnemonic, and the target address/labelname
+      # i.e. [xx, 'OPC', 'TARGET']
+
       memory = line[0]
 
-      address = line[2]
-      if line[2] in self.labels:
-        address = f"{self.labels[line[2]]:02}"
+      opcode = str(CARDIAC_INSTRUCTIONS.index(line[1])) if line[1] is not "DATA" else ""
+      target = f"{self.labels[line[2]]:02}" if line[2] in self.labels else line[2]
 
-      labels_ivd = {v: k for k, v in self.labels.items()}
+      labels_ivd = createIVD(self.labels)
       label = "" if memory not in labels_ivd else labels_ivd[memory]
 
       instruction = line[1]
@@ -67,7 +72,7 @@ class Assembler:
 
       print(
         f"""{memory:2}    """
-        f"""{str(CARDIAC_INSTRUCTIONS.index(line[1])) + address if line[1] is not "DATA" else location}    """
+        f"""{opcode + target if opcode is not "" else location}    """
         f"""{label:<8}  """
         f"""{instruction}    """
         f"""{location}"""
