@@ -58,11 +58,12 @@ class Assembler:
       labels_ivd = {v: k for k, v in self.labels.items()}
       label = "" if memory not in labels_ivd else labels_ivd[memory]
 
-      if line[0] - last > 1 and last > 0: print() # separate discontiguous memory blocks with a blank line
-      last = line[0]
-
       instruction = line[1]
       location = line[2]
+
+      # separate discontiguous memory blocks with a blank line
+      if line[0] - last > 1 and last > 0: print()
+      last = line[0]
 
       print(
         f"""{memory:2}    """
