@@ -33,7 +33,7 @@ class Assembler:
     self.generateListing()
 
   def data(self, line):
-    tokens = removeComments(line)
+    tokens = self.removeComments(line)
     
     if len(tokens) < 2:
       raise ValueError("Expected value.")
@@ -43,34 +43,41 @@ class Assembler:
         raise ValueError("Unexpected value.")
 
     for token in tokens[1:]:
-      listline = ""
-      listline += f"{self.current_address:02}    {token}"
-      if self.current_address in self.labels:
-        listline+= f"    {self.labels[self.current_address]:<6}  "
-      else:
-        listline+= " "*12
-      listline += "DATA    "
-      listline += f"{tokens[1]}"
-
-      self.preprocessLines.append(listline)
+      self.preprocessLines.append([ self.current_address, "DATA", tokens[1] ])
       self.current_address += 1
-      
 
   def generateListing(self):
-    last = 0
+    last = -1
     for line in self.preprocessLines:
-      if int(line[0:2]) - last > 1:
-        print()
-      last = int(line[0:2])
+      memory = line[0]
 
-      print(line)
+      address = line[2]
+      if line[2] in self.labels:
+        address = f"{self.labels[line[2]]:02}"
+
+      labels_ivd = {v: k for k, v in self.labels.items()}
+      label = "" if memory not in labels_ivd else labels_ivd[memory]
+
+      if line[0] - last > 1 and last > 0: print() # separate discontiguous memory blocks with a blank line
+      last = line[0]
+
+      instruction = line[1]
+      location = line[2]
+
+      print(
+        f"""{memory:2}    """
+        f"""{str(CARDIAC_INSTRUCTIONS.index(line[1])) + address if line[1] is not "DATA" else location}    """
+        f"""{label:<8}  """
+        f"""{instruction}    """
+        f"""{location}"""
+      )
 
   def label(self, line):
     tokens = removeComments(line)
 
     labelname = tokens[0].split(':')[0]
 
-    self.labels[self.current_address] = labelname
+    self.labels[labelname] = self.current_address
     
   def org(self, line):
     tokens = removeComments(line)
@@ -93,9 +100,8 @@ class Assembler:
 
     token = line.split(maxsplit=1)[0]
     
-    if token.startswith(';'): return
-
-    elif ':' in token: self.label(line)
+    if token.startswith(';'): self.removeComments(line)
+    elif token.endswith(':'): self.label(line)
     
     elif token == ".data": self.data(line)
     elif token == ".org": self.org(line)
@@ -115,21 +121,16 @@ class Assembler:
     elif not isAddress(tokens[1]) and not isLabel(tokens[1]):
       raise ValueError("Unexpected value.")
 
-    listline = ""
-
-    listline += f"{self.current_address:02}    "
-    listline += f"{CARDIAC_INSTRUCTIONS.index(tokens[0])}"
-    listline += "xx"
-
-    if self.current_address in self.labels:
-      listline+= f"    {self.labels[self.current_address]:<6}  "
-    else:
-      listline+= " "*12
-
-    listline += f"{tokens[0]}    {tokens[1]} "
-    self.preprocessLines.append(listline)
-
+    self.preprocessLines.append([ self.current_address, tokens[0], tokens[1] ])
     self.current_address += 1
+  
+  def removeComments(self, line):
+    if not self.current_address in self.comments: self.comments[self.current_address] = []
+
+    if ';' in line:
+      self.comments[self.current_address].append(line.split(';',maxsplit=1)[1])
+
+    return removeComments(line)
 
 if __name__ == '__main__':
   import main
