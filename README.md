@@ -44,15 +44,15 @@ CLA 400 ; Load card 400 into the accumulator.
 
 **Cardiac Instructions:**
 
-| Instruction | Description                                  |
-| ----------- | -------------------------------------------- |
-|	INP         | Read a card into memory                      |
-|	CLA         | Clear accumulator and add from memory (load) |
-|	ADD         | Add from memory to accumulator               |
-|	TAC         | Test accumulator and jump if negative        |
-|	SFT         | Shift accumulator                            |
-|	OUT         | Write memory location to output card         |
-|	STO         | Store accumulator to memory                  | 
-|	SUB         | Subtract memory from accumulator             |
-|	JMP         | Jump and save PC                             |
-|	HRS         | Halt and reset                               | 
+| Instruction | Opcode | Description                                  |
+| ----------- | ------ | -------------------------------------------- |
+|	INP         | 0      | Read a card into memory                      |
+|	CLA         | 1      | Clear accumulator and add from memory (load) |
+|	ADD         | 2      | Add from memory to accumulator               |
+|	TAC         | 3      | Test accumulator and jump if negative        |
+|	SFT         | 4      | Shift accumulator                            |
+|	OUT         | 5      | Write memory location to output card         |
+|	STO         | 6      | Store accumulator to memory                  | 
+|	SUB         | 7      | Subtract memory from accumulator             |
+|	JMP         | 8      | Jump and save PC                             |
+|	HRS         | 9      | Halt and reset                               | 
