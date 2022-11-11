@@ -32,7 +32,7 @@ A **label** can be on its own line or can be followed by an instruction.
 example:
   JMP 300
 
-with_instruction: JMP 300
+with_instruction: JMP 30
 ```
 
 **Comments:**
@@ -40,7 +40,7 @@ with_instruction: JMP 300
 **Comments** can be created with a semicolon. Anything on the remainder of the line will be ignored by the assmbler.
 
 ```
-CLA 400 ; Load card 400 into the accumulator.
+CLA 40 ; Load memory cell 40 into the accumulator.
 ```
 
 **Cardiac Instructions:**
