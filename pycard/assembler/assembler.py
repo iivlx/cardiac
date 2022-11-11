@@ -49,37 +49,50 @@ class Assembler:
       self.preprocessLines.append([ self.current_address, "DATA", tokens[1] ])
       self.current_address += 1
 
+  def encodeInstruction(self, opcode, address):
+      op = str(CARDIAC_INSTRUCTIONS.index(opcode)) if opcode is not "DATA" else ""
+      add = f"{self.labels[address]:02}" if address in self.labels else address
+      return op, add
+
+  def generateDeck(self):
+    for line in self.preprocessLines:
+      pass
+
   def generateListing(self):
     last = -1
     for line in self.preprocessLines:
-      # line is a list containing the memory address, the opcode mnemonic, and the target address/labelname
-      # i.e. [xx, 'OPC', 'TARGET']
-
-      memory = line[0]
-
-      opcode = str(CARDIAC_INSTRUCTIONS.index(line[1])) if line[1] is not "DATA" else ""
-      target = f"{self.labels[line[2]]:02}" if line[2] in self.labels else line[2]
-
-      labels_ivd = createIVD(self.labels)
-      label = "" if memory not in labels_ivd else labels_ivd[memory]
-
-      instruction = line[1]
-      location = line[2]
-
       # separate discontiguous memory blocks with a blank line
       if line[0] - last > 1 and last > 0: print()
       last = line[0]
 
+      self.generateListLine(line[0], line[1], line[2])
+
+  def generateListLine(self, memory, mnemonic, target):
+      opcode, address = self.encodeInstruction(mnemonic, target)
       print(
         f"""{memory:2}    """
-        f"""{opcode + target if opcode is not "" else location}    """
-        f"""{label:<8}  """
-        f"""{instruction}    """
-        f"""{location}"""
+        f"""{opcode + address if opcode is not "" else target}    """
+        f"""{self.getLabel(memory):<8}  """
+        f"""{mnemonic + " " if mnemonic is not "DATA" else mnemonic}   """
+        f"""{target:<10}""",
+        end=''
       )
 
+      # display comments
+      if memory in self.comments and len(self.comments[memory]) > 0:
+        commentlist = self.comments[memory]
+        print(commentlist[0], end='')
+        for comment in commentlist[1:]:
+          print(" "*40+comment, end='')
+      else:
+        print()
+    
+  def getLabel(self, memory):
+      labels_ivd = createIVD(self.labels)
+      return "" if memory not in labels_ivd else labels_ivd[memory]
+
   def label(self, line):
-    tokens = removeComments(line)
+    tokens = self.removeComments(line)
 
     labelname = tokens[0].split(':')[0]
 
@@ -120,7 +133,7 @@ class Assembler:
   
 
   def preprocessInstruction(self, line):
-    tokens = removeComments(line)
+    tokens = self.removeComments(line)
     
     if len(tokens) > 2:
       raise ValueError("Too many values.")
@@ -131,10 +144,10 @@ class Assembler:
     self.current_address += 1
   
   def removeComments(self, line):
-    if not self.current_address in self.comments: self.comments[self.current_address] = []
+    if self.current_address not in self.comments: self.comments[self.current_address] = list()
 
     if ';' in line:
-      self.comments[self.current_address].append(line.split(';',maxsplit=1)[1])
+      self.comments[self.current_address].append(';'+line.split(';',maxsplit=1)[1])
 
     return removeComments(line)
 
